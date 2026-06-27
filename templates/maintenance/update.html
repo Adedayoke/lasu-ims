@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Update Maintenance #{{ log.pk }}{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><a href="{% url 'maintenance:list' %}">Maintenance</a><span class="sep">/</span><a href="{% url 'maintenance:detail' log.pk %}">#{{ log.pk }}</a><span class="sep">/</span><span class="current">Update</span>{% endblock %}
+
+{% block content %}
+<div class="page-header"><div><h1 class="page-title">Update Maintenance Record</h1><p class="page-subtitle">{{ log.asset.asset_id }} — {{ log.asset.name }}</p></div></div>
+
+<div class="card" style="max-width:600px;">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Status</label>
+          <select name="status" class="form-select">
+            {% for val, label in status_choices %}
+            <option value="{{ val }}" {% if val == log.status %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Assigned Technician</label>
+          <input type="text" name="assigned_technician" value="{{ log.assigned_technician }}" class="form-control">
+        </div>
+        <div class="form-group"><label class="form-label">Repair Cost (₦)</label>
+          <input type="number" name="repair_cost" value="{{ log.repair_cost|default:'' }}" step="0.01" min="0" class="form-control">
+        </div>
+        <div class="form-group"><label class="form-label">Condition After Repair</label>
+          <select name="condition_after" class="form-select">
+            {% for val, label in condition_choices %}
+            <option value="{{ val }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group full-width"><label class="form-label">Repair Notes</label>
+          <textarea name="repair_notes" class="form-control" rows="4">{{ log.repair_notes }}</textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save Update</button>
+        <a href="{% url 'maintenance:detail' log.pk %}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

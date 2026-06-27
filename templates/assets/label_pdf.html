@@ -1,0 +1,72 @@
+{% load static %}<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+@page { size: A4; margin: 10mm; }
+body { font-family: Arial, Helvetica, sans-serif; font-size: 9pt; margin: 0; color: #111; }
+table.outer { width: 100%; border-collapse: collapse; }
+td.label-cell {
+  width: 50%;
+  border: 1px solid #bbb;
+  padding: 6mm;
+  vertical-align: top;
+  page-break-inside: avoid;
+}
+td.spacer { width: 4mm; border: none; padding: 0; }
+td.empty { width: 50%; border: none; padding: 0; }
+tr.row-gap { height: 4mm; }
+.lbl-header {
+  display: block;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 2.5mm;
+  margin-bottom: 2.5mm;
+  overflow: hidden;
+}
+.lbl-logo { height: 20px; vertical-align: middle; }
+.lbl-org { font-size: 7pt; color: #666; vertical-align: middle; margin-left: 4px; }
+.lbl-name { font-size: 11pt; font-weight: bold; color: #111; margin: 0 0 1mm; }
+.lbl-id { font-size: 8pt; color: #444; font-family: Courier, monospace; margin: 0 0 2.5mm; }
+.lbl-barcode img { max-height: 38px; max-width: 100%; display: block; margin-bottom: 2mm; }
+.lbl-qr img { max-height: 58px; max-width: 58px; display: block; margin-bottom: 2mm; }
+.lbl-meta { font-size: 7pt; color: #777; }
+.lbl-meta span { margin-right: 4px; }
+</style>
+</head>
+<body>
+<table class="outer">
+  {% for row in label_rows %}
+  <tr>
+    {% for asset in row %}
+    {% if asset %}
+    <td class="label-cell">
+      <span class="lbl-header">
+        <img src="{% static 'images/lasu-logo.jpg' %}" class="lbl-logo" alt="LASU">
+        <span class="lbl-org">Lagos State University — IMS</span>
+      </span>
+      <div class="lbl-name">{{ asset.name|truncatechars:50 }}</div>
+      <div class="lbl-id">{{ asset.asset_id }}{% if asset.serial_number %} &nbsp;|&nbsp; S/N: {{ asset.serial_number }}{% endif %}</div>
+      {% if asset.barcode_image %}
+      <div class="lbl-barcode"><img src="{{ asset.barcode_image.url }}" alt="barcode"></div>
+      {% endif %}
+      {% if asset.qr_code_image %}
+      <div class="lbl-qr"><img src="{{ asset.qr_code_image.url }}" alt="qr"></div>
+      {% endif %}
+      <div class="lbl-meta">
+        <span>{{ asset.department.name }}</span>
+        &bull;
+        <span>{{ asset.category.name }}</span>
+      </div>
+    </td>
+    {% else %}
+    <td class="empty"></td>
+    {% endif %}
+    {% if not forloop.last %}<td class="spacer"></td>{% endif %}
+    {% endfor %}
+    {% if row|length == 1 %}<td class="spacer"></td><td class="empty"></td>{% endif %}
+  </tr>
+  {% if not forloop.last %}<tr class="row-gap"><td colspan="3"></td></tr>{% endif %}
+  {% endfor %}
+</table>
+</body>
+</html>

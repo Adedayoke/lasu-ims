@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Reconciliation{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><span class="current">Reconciliation</span>{% endblock %}
+{% block extra_js %}{% load static %}<script src="{% static 'js/barcode-scan.js' %}"></script>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Reconciliation Tool</h1><p class="page-subtitle">Scan a barcode to verify asset location and status.</p></div>
+</div>
+
+<form method="get">
+  <div class="scan-input-wrapper">
+    <div class="scan-input-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5z"/></svg></div>
+    <input type="text" name="barcode" value="{{ barcode }}" class="scan-input" placeholder="Scan barcode or type Asset ID…" autocomplete="off">
+  </div>
+</form>
+
+{% if barcode and not asset %}
+<div class="alert alert-danger">No asset found for barcode: <strong>{{ barcode }}</strong></div>
+{% endif %}
+
+{% if asset %}
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><div class="card-title">Asset Record</div></div>
+    <div class="card-body">
+      <div class="info-grid">
+        <div class="info-item"><div class="info-item-label">Asset ID</div><div class="info-item-value font-medium">{{ asset.asset_id }}</div></div>
+        <div class="info-item"><div class="info-item-label">Name</div><div class="info-item-value">{{ asset.name }}</div></div>
+        <div class="info-item"><div class="info-item-label">Status</div><div class="info-item-value"><span class="badge badge-{{ asset.get_status_badge }}">{{ asset.get_status_display }}</span></div></div>
+        <div class="info-item"><div class="info-item-label">Department</div><div class="info-item-value">{{ asset.department.name }}</div></div>
+        <div class="info-item"><div class="info-item-label">Custodian</div><div class="info-item-value">{{ asset.custodian.get_full_name|default:'Unassigned' }}</div></div>
+        <div class="info-item"><div class="info-item-label">Location on Record</div><div class="info-item-value">{{ asset.location_description|default:'Not specified' }}</div></div>
+      </div>
+    </div>
+  </div>
+
+  {% if discrepancy == 'flagged' %}
+  <div class="alert alert-warning" style="align-self:start;">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z"/></svg>
+    Discrepancy flagged and logged to the audit trail.
+  </div>
+  {% else %}
+  <div class="card">
+    <div class="card-header"><div class="card-title">Flag Discrepancy</div></div>
+    <div class="card-body">
+      <p class="text-secondary" style="margin-bottom:16px;font-size:13px;">If the physical location or condition does not match the record, flag it here.</p>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="barcode" value="{{ barcode }}">
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label">Discrepancy Note</label>
+          <textarea name="discrepancy_note" class="form-control" rows="3" placeholder="Describe what you physically observed…" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-danger">Flag Discrepancy</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

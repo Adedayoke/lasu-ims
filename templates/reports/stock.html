@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Stock Report{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><span class="current">Stock Report</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Stock Report</h1><p class="page-subtitle">Total value: {{ total_value|naira }}</p></div>
+  <div class="page-actions">
+    <a href="{% url 'reports:export_excel' %}?{{ request.GET.urlencode }}" class="btn btn-secondary">Export Excel</a>
+    <a href="{% url 'reports:export_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-secondary">Export PDF</a>
+  </div>
+</div>
+
+<form method="get" class="filter-bar" style="flex-wrap:wrap;">
+  <input type="text" name="q" value="{{ current_filters.q }}" placeholder="Search…" class="form-control search-input">
+  <select name="status" class="form-select" onchange="this.form.submit()">
+    <option value="">All Statuses</option>
+    {% for val, label in status_choices %}
+    <option value="{{ val }}" {% if current_filters.status == val %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <select name="category" class="form-select" onchange="this.form.submit()">
+    <option value="">All Categories</option>
+    {% for cat in categories %}
+    <option value="{{ cat.pk }}" {% if current_filters.category == cat.pk|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+    {% endfor %}
+  </select>
+  <select name="department" class="form-select" onchange="this.form.submit()">
+    <option value="">All Departments</option>
+    {% for dept in departments %}
+    <option value="{{ dept.pk }}" {% if current_filters.department == dept.pk|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+    {% endfor %}
+  </select>
+  <input type="date" name="date_from" value="{{ current_filters.date_from }}" class="form-control" style="width:auto;">
+  <input type="date" name="date_to" value="{{ current_filters.date_to }}" class="form-control" style="width:auto;">
+  <button type="submit" class="btn btn-secondary">Filter</button>
+  <a href="{% url 'reports:stock' %}" class="btn btn-ghost">Clear</a>
+</form>
+
+<div class="card">
+  <div class="table-wrapper" style="border:none;border-radius:0;">
+    <table class="data-table">
+      <thead><tr><th>Asset ID</th><th>Name</th><th>Category</th><th>Department</th><th>Status</th><th>Condition</th><th>Custodian</th><th>Purchase Cost</th></tr></thead>
+      <tbody>
+        {% for asset in page_obj %}
+        <tr>
+          <td><a href="{% url 'assets:detail' asset.asset_id %}">{{ asset.asset_id }}</a></td>
+          <td>{{ asset.name }}</td>
+          <td class="muted">{{ asset.category.name }}</td>
+          <td class="muted">{{ asset.department.name }}</td>
+          <td><span class="badge badge-{{ asset.get_status_badge }}">{{ asset.get_status_display }}</span></td>
+          <td><span class="badge badge-{{ asset.get_condition_badge }}">{{ asset.get_condition_display }}</span></td>
+          <td class="muted">{{ asset.custodian.get_full_name|default:'—' }}</td>
+          <td class="muted">{{ asset.purchase_cost|naira }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" style="text-align:center;padding:48px;color:var(--color-text-muted);">No assets match the filters.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

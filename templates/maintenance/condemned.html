@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Condemned Assets{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><span class="current">Condemned Assets</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Condemned Assets</h1><p class="page-subtitle">{{ page_obj.paginator.count }} asset{{ page_obj.paginator.count|pluralize }} condemned</p></div>
+</div>
+
+<div class="card">
+  <div class="table-wrapper" style="border:none;border-radius:0;">
+    <table class="data-table">
+      <thead><tr><th>Asset ID</th><th>Name</th><th>Category</th><th>Department</th><th>Last Updated</th><th class="col-actions">Actions</th></tr></thead>
+      <tbody>
+        {% for asset in page_obj %}
+        <tr>
+          <td><a href="{% url 'assets:detail' asset.asset_id %}">{{ asset.asset_id }}</a></td>
+          <td>{{ asset.name }}</td>
+          <td class="muted">{{ asset.category.name }}</td>
+          <td class="muted">{{ asset.department.name }}</td>
+          <td class="muted" style="font-size:12px;">{{ asset.updated_at|date:"d M Y" }}</td>
+          <td class="col-actions"><a href="{% url 'assets:detail' asset.asset_id %}" class="btn btn-ghost btn-sm">View</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="text-align:center;padding:48px;color:var(--color-text-muted);">No condemned assets.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}User Management{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><span class="current">Users</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">User Management</h1><p class="page-subtitle">{{ page_obj.paginator.count }} users in the system</p></div>
+  <a href="{% url 'admin_panel:user_create' %}" class="btn btn-primary">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+    Add User
+  </a>
+</div>
+
+<form method="get" class="filter-bar">
+  <input type="text" name="q" value="{{ q }}" placeholder="Search users…" class="form-control search-input">
+  <button type="submit" class="btn btn-secondary">Search</button>
+  {% if q %}<a href="{% url 'admin_panel:users' %}" class="btn btn-ghost">Clear</a>{% endif %}
+</form>
+
+<div class="card">
+  <div class="table-wrapper" style="border:none;border-radius:0;">
+    <table class="data-table">
+      <thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Department</th><th>Staff ID</th><th>Status</th><th class="col-actions">Actions</th></tr></thead>
+      <tbody>
+        {% for user in page_obj %}
+        <tr>
+          <td class="font-medium">{{ user.username }}</td>
+          <td>{{ user.get_full_name|default:'—' }}</td>
+          <td><span class="badge badge-{{ user.get_role_display_badge }}">{{ user.get_role_display }}</span></td>
+          <td class="muted">{{ user.department.name|default:'—' }}</td>
+          <td class="muted" style="font-family:var(--font-mono);font-size:12px;">{{ user.staff_id|default:'—' }}</td>
+          <td><span class="badge {% if user.is_active %}badge-success{% else %}badge-danger{% endif %}">{% if user.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+          <td class="col-actions">
+            <a href="{% url 'admin_panel:user_edit' user.pk %}" class="btn btn-ghost btn-sm">Edit</a>
+            {% if user != request.user %}
+            <form method="post" action="{% url 'admin_panel:user_deactivate' user.pk %}" style="display:inline;" onsubmit="return confirm('Toggle this user\'s active status?')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-ghost btn-sm {% if user.is_active %}text-danger{% else %}text-success{% endif %}">
+                {% if user.is_active %}Deactivate{% else %}Activate{% endif %}
+              </button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="text-align:center;padding:48px;color:var(--color-text-muted);">No users found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

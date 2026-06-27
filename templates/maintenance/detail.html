@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Maintenance #{{ log.pk }}{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><a href="{% url 'maintenance:list' %}">Maintenance</a><span class="sep">/</span><span class="current">#{{ log.pk }}</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Maintenance Record #{{ log.pk }}</h1>
+    <p class="page-subtitle"><a href="{% url 'assets:detail' log.asset.asset_id %}">{{ log.asset.asset_id }}</a> — {{ log.asset.name }}</p>
+  </div>
+  {% if request.user.role|in_list:'superadmin,store_officer' %}
+  <a href="{% url 'maintenance:update' log.pk %}" class="btn btn-primary">Update Status</a>
+  {% endif %}
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><div class="card-title">Maintenance Details</div></div>
+    <div class="card-body">
+      <div class="info-grid">
+        <div class="info-item"><div class="info-item-label">Status</div><div class="info-item-value"><span class="badge badge-{{ log.get_status_badge }}">{{ log.get_status_display }}</span></div></div>
+        <div class="info-item"><div class="info-item-label">Reported By</div><div class="info-item-value">{{ log.reported_by.get_full_name|default:log.reported_by.username }}</div></div>
+        <div class="info-item"><div class="info-item-label">Reported At</div><div class="info-item-value">{{ log.reported_at|date:"d M Y H:i" }}</div></div>
+        {% if log.completed_at %}<div class="info-item"><div class="info-item-label">Completed At</div><div class="info-item-value">{{ log.completed_at|date:"d M Y H:i" }}</div></div>{% endif %}
+        <div class="info-item"><div class="info-item-label">Technician</div><div class="info-item-value">{{ log.assigned_technician|default:'—' }}</div></div>
+        {% if log.repair_cost %}<div class="info-item"><div class="info-item-label">Repair Cost</div><div class="info-item-value">{{ log.repair_cost|naira }}</div></div>{% endif %}
+        <div class="info-item" style="grid-column:1/-1;"><div class="info-item-label">Issue Description</div><div class="info-item-value">{{ log.issue_description }}</div></div>
+        {% if log.repair_notes %}<div class="info-item" style="grid-column:1/-1;"><div class="info-item-label">Repair Notes</div><div class="info-item-value">{{ log.repair_notes }}</div></div>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">Asset Summary</div></div>
+    <div class="card-body">
+      <div class="info-grid">
+        <div class="info-item"><div class="info-item-label">Asset ID</div><div class="info-item-value font-medium"><a href="{% url 'assets:detail' log.asset.asset_id %}">{{ log.asset.asset_id }}</a></div></div>
+        <div class="info-item"><div class="info-item-label">Name</div><div class="info-item-value">{{ log.asset.name }}</div></div>
+        <div class="info-item"><div class="info-item-label">Category</div><div class="info-item-value">{{ log.asset.category.name }}</div></div>
+        <div class="info-item"><div class="info-item-label">Department</div><div class="info-item-value">{{ log.asset.department.name }}</div></div>
+        <div class="info-item"><div class="info-item-label">Current Status</div><div class="info-item-value"><span class="badge badge-{{ log.asset.get_status_badge }}">{{ log.asset.get_status_display }}</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

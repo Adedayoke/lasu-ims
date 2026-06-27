@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}{{ asset.asset_id }}{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><a href="{% url 'assets:list' %}">Assets</a><span class="sep">/</span><span class="current">{{ asset.asset_id }}</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ asset.name }}</h1>
+    <p class="page-subtitle">{{ asset.asset_id }} &mdash; {{ asset.category.name }}</p>
+  </div>
+  <div class="page-actions">
+    {% if request.user.role|in_list:'superadmin,store_officer' %}
+    <form method="post" action="{% url 'assets:print_queue' %}" style="display:inline;">
+      {% csrf_token %}
+      <input type="hidden" name="asset_id" value="{{ asset.asset_id }}">
+      {% if in_print_queue %}
+      <input type="hidden" name="action" value="remove">
+      <button type="submit" class="btn btn-secondary btn-sm">Remove from Print Queue</button>
+      {% else %}
+      <input type="hidden" name="action" value="add">
+      <button type="submit" class="btn btn-secondary btn-sm">Add to Print Queue</button>
+      {% endif %}
+    </form>
+    <a href="{% url 'assets:edit' asset.asset_id %}" class="btn btn-secondary">Edit</a>
+    {% if request.user.role == 'superadmin' and asset.status != 'condemned' %}
+    <a href="{% url 'assets:condemn' asset.asset_id %}" class="btn btn-danger">Condemn</a>
+    {% endif %}
+    {% endif %}
+    {% if request.user.role|in_list:'superadmin,store_officer' %}
+    <a href="{% url 'maintenance:report' %}?asset={{ asset.asset_id }}" class="btn btn-secondary">Report Maintenance</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid-2" style="margin-bottom:20px;">
+  <!-- Left: details -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Asset Details</div></div>
+      <div class="card-body">
+        <div class="info-grid">
+          <div class="info-item"><div class="info-item-label">Asset ID</div><div class="info-item-value font-medium">{{ asset.asset_id }}</div></div>
+          <div class="info-item"><div class="info-item-label">Status</div><div class="info-item-value"><span class="badge badge-{{ asset.get_status_badge }}">{{ asset.get_status_display }}</span></div></div>
+          <div class="info-item"><div class="info-item-label">Condition</div><div class="info-item-value"><span class="badge badge-{{ asset.get_condition_badge }}">{{ asset.get_condition_display }}</span></div></div>
+          <div class="info-item"><div class="info-item-label">Category</div><div class="info-item-value">{{ asset.category.name }}</div></div>
+          <div class="info-item"><div class="info-item-label">Department</div><div class="info-item-value">{{ asset.department.name }}</div></div>
+          <div class="info-item"><div class="info-item-label">Custodian</div><div class="info-item-value">{{ asset.custodian.get_full_name|default:'—' }}</div></div>
+          <div class="info-item"><div class="info-item-label">Serial Number</div><div class="info-item-value">{{ asset.serial_number|default:'—' }}</div></div>
+          <div class="info-item"><div class="info-item-label">Supplier</div><div class="info-item-value">{{ asset.supplier_name|default:'—' }}</div></div>
+          <div class="info-item"><div class="info-item-label">Purchase Date</div><div class="info-item-value">{{ asset.purchase_date|default:'—' }}</div></div>
+          <div class="info-item"><div class="info-item-label">Purchase Cost</div><div class="info-item-value">{{ asset.purchase_cost|naira }}</div></div>
+          <div class="info-item" style="grid-column:1/-1;"><div class="info-item-label">Location</div><div class="info-item-value">{{ asset.location_description|default:'—' }}</div></div>
+          {% if asset.description %}<div class="info-item" style="grid-column:1/-1;"><div class="info-item-label">Description</div><div class="info-item-value">{{ asset.description }}</div></div>{% endif %}
+          {% if asset.notes %}<div class="info-item" style="grid-column:1/-1;"><div class="info-item-label">Notes</div><div class="info-item-value">{{ asset.notes }}</div></div>{% endif %}
+          <div class="info-item"><div class="info-item-label">Registered By</div><div class="info-item-value">{{ asset.created_by.get_full_name|default:asset.created_by.username }}</div></div>
+          <div class="info-item"><div class="info-item-label">Created</div><div class="info-item-value">{{ asset.created_at|date:"d M Y H:i" }}</div></div>
+          <div class="info-item"><div class="info-item-label">Last Updated</div><div class="info-item-value">{{ asset.updated_at|date:"d M Y H:i" }}</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: barcode & QR -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Barcode & QR Code</div>
+        {% if request.user.role|in_list:'superadmin,store_officer' %}
+        <a href="{% url 'assets:label_pdf' asset.asset_id %}" class="btn btn-ghost btn-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+          Label PDF
+        </a>
+        {% endif %}
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+        {% if asset.barcode_image %}
+        <div style="text-align:center;">
+          <img src="{{ asset.barcode_image.url }}" alt="Barcode" style="max-height:80px;filter:invert({% if request.COOKIES.theme != 'light' %}1{% else %}0{% endif %});">
+          <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-text-muted);margin-top:4px;">{{ asset.barcode_number }}</div>
+        </div>
+        {% endif %}
+        {% if asset.qr_code_image %}
+        <img src="{{ asset.qr_code_image.url }}" alt="QR Code" style="max-height:120px;border-radius:8px;">
+        {% endif %}
+        {% if not asset.barcode_image and not asset.qr_code_image %}
+        <p class="text-muted">Barcode images not generated yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Maintenance summary -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Maintenance</div>
+        {% if request.user.role|in_list:'superadmin,store_officer' %}
+        <a href="{% url 'maintenance:report' %}?asset={{ asset.asset_id }}" class="btn btn-ghost btn-sm">Report Issue</a>
+        {% endif %}
+      </div>
+      {% if maintenance_logs %}
+      <div class="card-body" style="padding-top:8px;">
+        {% for log in maintenance_logs|slice:":3" %}
+        <div class="activity-item">
+          <div class="activity-dot {% if log.status == 'completed' %}success{% elif log.status == 'in_progress' %}accent{% else %}warning{% endif %}"></div>
+          <div>
+            <div class="activity-text"><a href="{% url 'maintenance:detail' log.pk %}">{{ log.issue_description|truncatewords:8 }}</a></div>
+            <div class="activity-time"><span class="badge badge-{{ log.get_status_badge }}">{{ log.get_status_display }}</span> — {{ log.reported_at|timesince }} ago</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state" style="padding:24px;"><div class="empty-state-title">No maintenance records</div></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Transaction History -->
+<div class="card">
+  <div class="card-header"><div class="card-title">Transaction History</div><span class="badge badge-neutral">{{ transactions.count }}</span></div>
+  {% if transactions %}
+  <div class="table-wrapper" style="border:none;border-radius:0;">
+    <table class="data-table">
+      <thead><tr><th>Transaction ID</th><th>Type</th><th>From</th><th>To</th><th>Performed By</th><th>Notes</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for txn in transactions %}
+        <tr>
+          <td class="font-medium" style="font-family:var(--font-mono);font-size:12px;">{{ txn.transaction_id }}</td>
+          <td><span class="badge badge-{{ txn.get_type_badge }}">{{ txn.get_transaction_type_display }}</span></td>
+          <td class="muted">{{ txn.from_department.name|default:'—' }}</td>
+          <td class="muted">{{ txn.to_department.name|default:'—' }}</td>
+          <td class="muted">{{ txn.performed_by.get_full_name|default:txn.performed_by.username }}</td>
+          <td class="muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ txn.notes|default:'—' }}</td>
+          <td class="muted" style="font-size:12px;white-space:nowrap;">{{ txn.created_at|date:"d M Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="empty-state-title">No transactions for this asset</div></div>
+  {% endif %}
+</div>
+{% endblock %}

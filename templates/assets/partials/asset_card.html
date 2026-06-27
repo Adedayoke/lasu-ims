@@ -1,0 +1,10 @@
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+  <div class="info-item"><div class="info-item-label">Asset ID</div><div class="info-item-value font-medium">{{ asset.asset_id }}</div></div>
+  <div class="info-item"><div class="info-item-label">Name</div><div class="info-item-value">{{ asset.name }}</div></div>
+  <div class="info-item"><div class="info-item-label">Status</div><div class="info-item-value"><span class="badge badge-{{ asset.get_status_badge }}">{{ asset.get_status_display }}</span></div></div>
+  <div class="info-item"><div class="info-item-label">Condition</div><div class="info-item-value"><span class="badge badge-{{ asset.get_condition_badge }}">{{ asset.get_condition_display }}</span></div></div>
+  <div class="info-item"><div class="info-item-label">Department</div><div class="info-item-value">{{ asset.department.name }}</div></div>
+  <div class="info-item"><div class="info-item-label">Custodian</div><div class="info-item-value">{{ asset.custodian.get_full_name|default:'Unassigned' }}</div></div>
+  <div class="info-item" style="grid-column:1/-1;"><div class="info-item-label">Location</div><div class="info-item-value">{{ asset.location_description|default:'—' }}</div></div>
+</div>
+<input type="hidden" name="asset_pk" value="{{ asset.pk }}" id="scanned-asset-pk">

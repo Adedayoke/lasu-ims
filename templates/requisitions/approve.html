@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Approve {{ req.req_number }}{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><a href="{% url 'requisitions:list' %}">Requisitions</a><span class="sep">/</span><a href="{% url 'requisitions:detail' req.pk %}">{{ req.req_number }}</a><span class="sep">/</span><span class="current">Approve</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Approve Requisition</h1><p class="page-subtitle">{{ req.req_number }} — {{ req.department.name }}</p></div>
+</div>
+
+<div class="card" style="max-width:700px;">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      <div class="table-wrapper" style="border-radius:var(--radius-sm);margin-bottom:20px;">
+        <table class="data-table">
+          <thead><tr><th>Category</th><th>Requested</th><th>Approve Qty</th><th>Purpose</th></tr></thead>
+          <tbody>
+            {% for item in req.items.all %}
+            <tr>
+              <td>{{ item.asset_category.name }}</td>
+              <td>{{ item.quantity_requested }}</td>
+              <td><input type="number" name="qty_approved_{{ item.pk }}" value="{{ item.quantity_requested }}" min="0" max="{{ item.quantity_requested }}" class="form-control" style="width:80px;"></td>
+              <td class="muted">{{ item.purpose|default:'—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Approve Requisition</button>
+        <a href="{% url 'requisitions:detail' req.pk %}" class="btn btn-secondary">Cancel</a>
+        <a href="{% url 'requisitions:reject' req.pk %}" class="btn btn-danger" style="margin-left:auto;">Reject Instead</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

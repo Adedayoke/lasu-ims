@@ -1,0 +1,20 @@
+<!-- Reusable confirm modal. Usage: include with modal_id, modal_title, modal_body, form_action, confirm_class, confirm_text -->
+<div class="modal-overlay" id="{{ modal_id|default:'confirm-modal' }}">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">{{ modal_title|default:'Confirm Action' }}</span>
+      <button class="modal-close" data-modal-close="{{ modal_id|default:'confirm-modal' }}" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">{{ modal_body|default:'Are you sure you want to proceed?' }}</div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-modal-close="{{ modal_id|default:'confirm-modal' }}" type="button">Cancel</button>
+      <form method="post" action="{{ form_action }}" style="display:inline;">
+        {% csrf_token %}
+        {% if form_extra %}{{ form_extra }}{% endif %}
+        <button class="btn {{ confirm_class|default:'btn-danger' }}" type="submit">{{ confirm_text|default:'Confirm' }}</button>
+      </form>
+    </div>
+  </div>
+</div>

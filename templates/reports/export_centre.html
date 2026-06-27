@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Export Centre{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><span class="current">Export Centre</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Export Centre</h1><p class="page-subtitle">Generate filtered reports as PDF or Excel.</p></div>
+</div>
+
+<div class="card" style="max-width:700px;">
+  <div class="card-header"><div class="card-title">Report Filters</div></div>
+  <div class="card-body">
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Status</label>
+        <select name="status" id="f-status" class="form-select">
+          <option value="">All Statuses</option>
+          {% for val, label in status_choices %}
+          <option value="{{ val }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Category</label>
+        <select name="category" id="f-category" class="form-select">
+          <option value="">All Categories</option>
+          {% for cat in categories %}
+          <option value="{{ cat.pk }}">{{ cat.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Department</label>
+        <select name="department" id="f-department" class="form-select">
+          <option value="">All Departments</option>
+          {% for dept in departments %}
+          <option value="{{ dept.pk }}">{{ dept.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Purchase Date From</label>
+        <input type="date" id="f-date-from" class="form-control">
+      </div>
+      <div class="form-group"><label class="form-label">Purchase Date To</label>
+        <input type="date" id="f-date-to" class="form-control">
+      </div>
+    </div>
+  </div>
+  <div class="card-footer" style="display:flex;gap:10px;">
+    <button class="btn btn-primary" onclick="exportReport('excel')">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+      Export Excel
+    </button>
+    <button class="btn btn-secondary" onclick="exportReport('pdf')">Export PDF</button>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+function exportReport(format) {
+  const params = new URLSearchParams();
+  const status = document.getElementById('f-status').value;
+  const category = document.getElementById('f-category').value;
+  const department = document.getElementById('f-department').value;
+  const dateFrom = document.getElementById('f-date-from').value;
+  const dateTo = document.getElementById('f-date-to').value;
+  if (status) params.set('status', status);
+  if (category) params.set('category', category);
+  if (department) params.set('department', department);
+  if (dateFrom) params.set('date_from', dateFrom);
+  if (dateTo) params.set('date_to', dateTo);
+  const url = format === 'excel'
+    ? '{% url "reports:export_excel" %}?' + params.toString()
+    : '{% url "reports:export_pdf" %}?' + params.toString();
+  window.location.href = url;
+}
+</script>
+{% endblock %}
+{% endblock %}

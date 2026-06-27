@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Requisitions{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><span class="current">Requisitions</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Requisitions</h1><p class="page-subtitle">{{ page_obj.paginator.count }} total requisitions</p></div>
+  {% if request.user.role|in_list:'superadmin,store_officer,hod' %}
+  <a href="{% url 'requisitions:create' %}" class="btn btn-primary">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+    New Requisition
+  </a>
+  {% endif %}
+</div>
+
+<form method="get" class="filter-bar">
+  <select name="status" class="form-select" onchange="this.form.submit()">
+    <option value="">All Statuses</option>
+    {% for val, label in status_choices %}
+    <option value="{{ val }}" {% if current_status == val %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  {% if current_status %}<a href="{% url 'requisitions:list' %}" class="btn btn-ghost">Clear</a>{% endif %}
+</form>
+
+<div class="card">
+  <div class="table-wrapper" style="border:none;border-radius:0;">
+    <table class="data-table">
+      <thead><tr><th>Req Number</th><th>Requested By</th><th>Department</th><th>Priority</th><th>Status</th><th>Date</th><th class="col-actions">Actions</th></tr></thead>
+      <tbody>
+        {% for req in page_obj %}
+        <tr>
+          <td><a href="{% url 'requisitions:detail' req.pk %}" class="font-medium">{{ req.req_number }}</a></td>
+          <td class="muted">{{ req.requested_by.get_full_name|default:req.requested_by.username }}</td>
+          <td class="muted">{{ req.department.name }}</td>
+          <td><span class="badge badge-{{ req.get_priority_badge }}">{{ req.get_priority_display }}</span></td>
+          <td><span class="badge badge-{{ req.get_status_badge }}">{{ req.get_status_display }}</span></td>
+          <td class="muted" style="font-size:12px;white-space:nowrap;">{{ req.created_at|date:"d M Y" }}</td>
+          <td class="col-actions">
+            <a href="{% url 'requisitions:detail' req.pk %}" class="btn btn-ghost btn-sm">View</a>
+            {% if req.status == 'submitted' and request.user.role|in_list:'superadmin,store_officer' %}
+            <a href="{% url 'requisitions:approve' req.pk %}" class="btn btn-ghost btn-sm text-success">Approve</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="text-align:center;padding:48px;color:var(--color-text-muted);">No requisitions found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

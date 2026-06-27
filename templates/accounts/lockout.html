@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Locked — LASU IMS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <script src="{% static 'js/theme.js' %}"></script>
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card" style="text-align:center;">
+    <div class="login-logo" style="justify-content:center;"><div class="login-logo-mark" style="background:var(--color-danger);">!</div></div>
+    <h1 class="login-heading" style="margin-top:24px;color:var(--color-danger);">Account Locked</h1>
+    <p class="login-sub">Too many failed login attempts. Your account has been locked for 15 minutes.</p>
+    <p style="font-size:12px;color:var(--color-text-muted);margin-top:12px;">Contact your system administrator if you need immediate access.</p>
+    <a href="{% url 'accounts:login' %}" class="btn btn-secondary" style="margin-top:24px;">Try Again Later</a>
+  </div>
+</div>
+</body>
+</html>

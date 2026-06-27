@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Departments{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><span class="current">Departments</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Departments</h1></div>
+  <a href="{% url 'admin_panel:department_create' %}" class="btn btn-primary">Add Department</a>
+</div>
+
+<div class="card">
+  <div class="table-wrapper" style="border:none;border-radius:0;">
+    <table class="data-table">
+      <thead><tr><th>Name</th><th>Code</th><th>Faculty</th><th>HOD</th><th>Members</th><th>Assets</th><th class="col-actions"></th></tr></thead>
+      <tbody>
+        {% for dept in departments %}
+        <tr>
+          <td class="font-medium">{{ dept.name }}</td>
+          <td><span class="badge badge-neutral" style="font-family:var(--font-mono);">{{ dept.code }}</span></td>
+          <td class="muted">{{ dept.faculty|default:'—' }}</td>
+          <td class="muted">{{ dept.hod.get_full_name|default:'—' }}</td>
+          <td class="muted">{{ dept.members.count }}</td>
+          <td class="muted">{{ dept.assets.count }}</td>
+          <td class="col-actions"><a href="{% url 'admin_panel:department_edit' dept.pk %}" class="btn btn-ghost btn-sm">Edit</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="text-align:center;padding:48px;color:var(--color-text-muted);">No departments.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Condemn {{ asset.asset_id }}{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><a href="{% url 'assets:list' %}">Assets</a><span class="sep">/</span><a href="{% url 'assets:detail' asset.asset_id %}">{{ asset.asset_id }}</a><span class="sep">/</span><span class="current">Condemn</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title" style="color:var(--color-danger);">Condemn Asset</h1>
+</div>
+
+<div class="card" style="max-width:560px;border-color:rgba(239,68,68,0.3);">
+  <div class="card-body">
+    <div class="alert alert-danger" style="margin-bottom:20px;">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+      This action is irreversible. The asset will be marked as condemned and removed from circulation.
+    </div>
+    <div class="info-grid" style="margin-bottom:20px;">
+      <div class="info-item"><div class="info-item-label">Asset ID</div><div class="info-item-value font-medium">{{ asset.asset_id }}</div></div>
+      <div class="info-item"><div class="info-item-label">Name</div><div class="info-item-value">{{ asset.name }}</div></div>
+      <div class="info-item"><div class="info-item-label">Department</div><div class="info-item-value">{{ asset.department.name }}</div></div>
+      <div class="info-item"><div class="info-item-label">Current Status</div><div class="info-item-value"><span class="badge badge-{{ asset.get_status_badge }}">{{ asset.get_status_display }}</span></div></div>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group" style="margin-bottom:20px;">
+        <label class="form-label">Condemnation Reason <span class="required">*</span></label>
+        <textarea name="reason" class="form-control" rows="4" placeholder="Provide a detailed reason for condemning this asset..." required></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-danger">Confirm Condemnation</button>
+        <a href="{% url 'assets:detail' asset.asset_id %}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

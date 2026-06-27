@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Audit Log{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><span class="current">Audit Log</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Audit Log</h1><p class="page-subtitle">{{ page_obj.paginator.count }} entries</p></div>
+</div>
+
+<form method="get" class="filter-bar">
+  <input type="text" name="q" value="{{ current_filters.q }}" placeholder="Search actions…" class="form-control search-input">
+  <input type="text" name="user" value="{{ current_filters.user }}" placeholder="Filter by user…" class="form-control" style="width:160px;">
+  <input type="date" name="date_from" value="{{ current_filters.date_from }}" class="form-control" style="width:auto;">
+  <input type="date" name="date_to" value="{{ current_filters.date_to }}" class="form-control" style="width:auto;">
+  <button type="submit" class="btn btn-secondary">Filter</button>
+  <a href="{% url 'reports:audit_log' %}" class="btn btn-ghost">Clear</a>
+</form>
+
+<div class="card">
+  <div class="table-wrapper" style="border:none;border-radius:0;">
+    <table class="data-table">
+      <thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Model</th><th>IP Address</th></tr></thead>
+      <tbody>
+        {% for entry in page_obj %}
+        <tr>
+          <td style="font-size:12px;white-space:nowrap;color:var(--color-text-secondary);">{{ entry.timestamp|date:"d M Y H:i:s" }}</td>
+          <td class="muted">{{ entry.user.username|default:'system' }}</td>
+          <td>{{ entry.action }}</td>
+          <td><span class="badge badge-neutral" style="font-family:var(--font-mono);font-size:10px;">{{ entry.model_name }}</span></td>
+          <td class="muted" style="font-size:12px;font-family:var(--font-mono);">{{ entry.ip_address|default:'—' }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" style="text-align:center;padding:48px;color:var(--color-text-muted);">No audit entries found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

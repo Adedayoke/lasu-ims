@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Maintenance Log{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><span class="current">Maintenance Log</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Maintenance Log</h1><p class="page-subtitle">{{ page_obj.paginator.count }} records</p></div>
+  {% if request.user.role|in_list:'superadmin,store_officer' %}
+  <a href="{% url 'maintenance:report' %}" class="btn btn-primary">Report Issue</a>
+  {% endif %}
+</div>
+
+<form method="get" class="filter-bar">
+  <select name="status" class="form-select" onchange="this.form.submit()">
+    <option value="">All Statuses</option>
+    {% for val, label in status_choices %}
+    <option value="{{ val }}" {% if current_status == val %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  {% if current_status %}<a href="{% url 'maintenance:list' %}" class="btn btn-ghost">Clear</a>{% endif %}
+</form>
+
+<div class="card">
+  <div class="table-wrapper" style="border:none;border-radius:0;">
+    <table class="data-table">
+      <thead><tr><th>Asset</th><th>Issue</th><th>Reported By</th><th>Technician</th><th>Status</th><th>Cost</th><th>Date</th><th class="col-actions"></th></tr></thead>
+      <tbody>
+        {% for log in page_obj %}
+        <tr>
+          <td><a href="{% url 'assets:detail' log.asset.asset_id %}">{{ log.asset.asset_id }}</a><br><span class="muted" style="font-size:12px;">{{ log.asset.name|truncatechars:25 }}</span></td>
+          <td>{{ log.issue_description|truncatechars:50 }}</td>
+          <td class="muted">{{ log.reported_by.get_full_name|default:log.reported_by.username }}</td>
+          <td class="muted">{{ log.assigned_technician|default:'—' }}</td>
+          <td><span class="badge badge-{{ log.get_status_badge }}">{{ log.get_status_display }}</span></td>
+          <td class="muted">{{ log.repair_cost|naira:0 }}</td>
+          <td class="muted" style="font-size:12px;white-space:nowrap;">{{ log.reported_at|date:"d M Y" }}</td>
+          <td class="col-actions">
+            <a href="{% url 'maintenance:detail' log.pk %}" class="btn btn-ghost btn-sm">View</a>
+            {% if request.user.role|in_list:'superadmin,store_officer' %}
+            <a href="{% url 'maintenance:update' log.pk %}" class="btn btn-ghost btn-sm">Update</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" style="text-align:center;padding:48px;color:var(--color-text-muted);">No maintenance records.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

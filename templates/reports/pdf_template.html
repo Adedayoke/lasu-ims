@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+body { font-family: Arial, sans-serif; font-size: 10px; color: #1a1a1a; margin: 20px; }
+h1 { font-size: 16px; margin-bottom: 4px; }
+p { margin: 2px 0; color: #555; font-size: 9px; }
+table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+th { background: #1a1d27; color: #fff; padding: 6px 8px; text-align: left; font-size: 9px; }
+td { padding: 5px 8px; border-bottom: 1px solid #e0e0e0; font-size: 9px; }
+tr:nth-child(even) td { background: #f8f8fb; }
+.footer { margin-top: 16px; font-size: 8px; color: #888; text-align: right; }
+</style>
+</head>
+<body>
+<h1>LASU Inventory Management System — Stock Report</h1>
+<p>Generated: {{ generated_at|date:"d M Y H:i" }} | Total Assets: {{ assets|length }} | Total Value: {{ total_value|naira }}</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Asset ID</th>
+      <th>Name</th>
+      <th>Category</th>
+      <th>Department</th>
+      <th>Status</th>
+      <th>Condition</th>
+      <th>Custodian</th>
+      <th>Cost (₦)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for asset in assets %}
+    <tr>
+      <td>{{ asset.asset_id }}</td>
+      <td>{{ asset.name }}</td>
+      <td>{{ asset.category.name }}</td>
+      <td>{{ asset.department.name }}</td>
+      <td>{{ asset.get_status_display }}</td>
+      <td>{{ asset.get_condition_display }}</td>
+      <td>{{ asset.custodian.get_full_name|default:'—' }}</td>
+      <td>{{ asset.purchase_cost|naira }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="footer">Lagos State University Inventory Management System &bull; Confidential</div>
+</body>
+</html>

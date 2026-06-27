@@ -1,0 +1,11 @@
+Django>=5.0,<5.2
+psycopg2-binary
+dj-database-url
+python-decouple
+Pillow
+python-barcode
+qrcode[pil]
+xhtml2pdf
+openpyxl
+django-axes
+whitenoise

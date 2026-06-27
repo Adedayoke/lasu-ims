@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Asset Registry{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><span class="current">Asset Registry</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Asset Registry</h1>
+    <p class="page-subtitle">{{ page_obj.paginator.count }} total assets</p>
+  </div>
+  <div class="page-actions">
+    {% if request.user.role|in_list:'superadmin,store_officer' %}
+    <a href="{% url 'assets:csv_import' %}" class="btn btn-secondary">Import CSV</a>
+    <a href="{% url 'assets:register' %}" class="btn btn-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+      Register Asset
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Filters -->
+<form method="get" class="filter-bar" id="filter-form">
+  <input type="text" name="q" value="{{ current_filters.q }}" placeholder="Search name, ID, serial…" class="form-control search-input" data-table-search="asset-table">
+  <select name="status" class="form-select" onchange="this.form.submit()">
+    <option value="">All Statuses</option>
+    {% for val, label in status_choices %}
+    <option value="{{ val }}" {% if current_filters.status == val %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <select name="category" class="form-select" onchange="this.form.submit()">
+    <option value="">All Categories</option>
+    {% for cat in categories %}
+    <option value="{{ cat.pk }}" {% if current_filters.category == cat.pk|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+    {% endfor %}
+  </select>
+  <select name="department" class="form-select" onchange="this.form.submit()">
+    <option value="">All Departments</option>
+    {% for dept in departments %}
+    <option value="{{ dept.pk }}" {% if current_filters.department == dept.pk|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn btn-secondary">Filter</button>
+  {% if current_filters.q or current_filters.status or current_filters.category or current_filters.department %}
+  <a href="{% url 'assets:list' %}" class="btn btn-ghost">Clear</a>
+  {% endif %}
+</form>
+
+<div class="card">
+  <div class="table-wrapper" style="border:none;border-radius:0;">
+    <table class="data-table" id="asset-table">
+      <thead>
+        <tr>
+          <th>Asset ID</th>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Department</th>
+          <th>Status</th>
+          <th>Condition</th>
+          <th>Custodian</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for asset in page_obj %}
+        <tr>
+          <td><a href="{% url 'assets:detail' asset.asset_id %}" class="font-medium">{{ asset.asset_id }}</a></td>
+          <td>{{ asset.name }}</td>
+          <td class="muted">{{ asset.category.name }}</td>
+          <td class="muted">{{ asset.department.name }}</td>
+          <td><span class="badge badge-{{ asset.get_status_badge }}">{{ asset.get_status_display }}</span></td>
+          <td><span class="badge badge-{{ asset.get_condition_badge }}">{{ asset.get_condition_display }}</span></td>
+          <td class="muted">{{ asset.custodian.get_full_name|default:'—' }}</td>
+          <td class="col-actions">
+            <a href="{% url 'assets:detail' asset.asset_id %}" class="btn btn-ghost btn-sm">View</a>
+            {% if request.user.role|in_list:'superadmin,store_officer' %}
+            <a href="{% url 'assets:edit' asset.asset_id %}" class="btn btn-ghost btn-sm">Edit</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="no-results" style="text-align:center;padding:48px;color:var(--color-text-muted);">No assets found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

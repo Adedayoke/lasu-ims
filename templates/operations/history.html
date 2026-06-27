@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Transaction History{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><span class="current">Transaction History</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Transaction History</h1><p class="page-subtitle">All asset operations</p></div>
+</div>
+
+<form method="get" class="filter-bar">
+  <input type="text" name="q" value="{{ current_filters.q }}" placeholder="Search asset ID or name…" class="form-control search-input">
+  <select name="type" class="form-select" onchange="this.form.submit()">
+    <option value="">All Types</option>
+    {% for val, label in type_choices %}
+    <option value="{{ val }}" {% if current_filters.type == val %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn btn-secondary">Filter</button>
+  {% if current_filters.q or current_filters.type %}<a href="{% url 'operations:history' %}" class="btn btn-ghost">Clear</a>{% endif %}
+</form>
+
+<div class="card">
+  <div class="table-wrapper" style="border:none;border-radius:0;">
+    <table class="data-table">
+      <thead><tr><th>Txn ID</th><th>Asset</th><th>Type</th><th>From</th><th>To</th><th>By</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for txn in page_obj %}
+        <tr>
+          <td style="font-family:var(--font-mono);font-size:12px;">{{ txn.transaction_id }}</td>
+          <td><a href="{% url 'assets:detail' txn.asset.asset_id %}">{{ txn.asset.asset_id }}</a><br><span class="muted" style="font-size:12px;">{{ txn.asset.name|truncatechars:30 }}</span></td>
+          <td><span class="badge badge-{{ txn.get_type_badge }}">{{ txn.get_transaction_type_display }}</span></td>
+          <td class="muted">{{ txn.from_department.name|default:'—' }}</td>
+          <td class="muted">{{ txn.to_department.name|default:'—' }}</td>
+          <td class="muted">{{ txn.performed_by.get_full_name|default:txn.performed_by.username }}</td>
+          <td class="muted" style="font-size:12px;white-space:nowrap;">{{ txn.created_at|date:"d M Y H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="text-align:center;padding:48px;color:var(--color-text-muted);">No transactions found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

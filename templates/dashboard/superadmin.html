@@ -1,0 +1,181 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">System Dashboard</h1>
+    <p class="page-subtitle">Welcome back, {{ request.user.get_full_name|default:request.user.username }} — Super Administrator</p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'admin_panel:users' %}" class="btn btn-secondary">Manage Users</a>
+    <a href="{% url 'assets:register' %}" class="btn btn-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+      Register Asset
+    </a>
+  </div>
+</div>
+
+<!-- Top Stats -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-card-icon accent">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+    </div>
+    <div class="stat-card-body">
+      <div class="stat-card-value">{{ total_assets }}</div>
+      <div class="stat-card-label">Total Assets</div>
+      <div class="stat-card-change text-secondary">{{ assets_this_year }} added this year</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon success">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"/></svg>
+    </div>
+    <div class="stat-card-body">
+      <div class="stat-card-value">{{ total_value|naira:0 }}</div>
+      <div class="stat-card-label">Total Asset Value</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon info">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+    </div>
+    <div class="stat-card-body">
+      <div class="stat-card-value">{{ total_users }}</div>
+      <div class="stat-card-label">System Users</div>
+      <div class="stat-card-change text-secondary">{{ active_sessions }} active sessions</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon warning">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/></svg>
+    </div>
+    <div class="stat-card-body">
+      <div class="stat-card-value">{{ pending_requisitions }}</div>
+      <div class="stat-card-label">Pending Requisitions</div>
+    </div>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  <!-- Asset value by department chart -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Asset Value by Department</div>
+    </div>
+    <div class="card-body">
+      <div class="chart-container">
+        <canvas id="deptChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Audit Log -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Recent Activity</div>
+      <a href="{% url 'reports:audit_log' %}" class="btn btn-ghost btn-sm">Full Log</a>
+    </div>
+    <div class="card-body" style="padding-top:8px;">
+      {% for entry in recent_audit %}
+      <div class="activity-item">
+        <div class="activity-dot accent"></div>
+        <div style="min-width:0;">
+          <div class="activity-text" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ entry.action }}</div>
+          <div class="activity-time">{{ entry.user.username|default:'system' }} — {{ entry.timestamp|timesince }} ago</div>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-muted" style="padding:16px 0;">No activity yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Status breakdown -->
+  <div class="card">
+    <div class="card-header"><div class="card-title">Asset Status Breakdown</div></div>
+    <div class="card-body">
+      {% with total=total_assets %}
+      {% if total %}
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px;"><span>Active</span><span class="text-secondary">{{ active }}</span></div>
+          <div style="background:var(--color-surface-2);border-radius:4px;height:4px;"><div style="background:var(--color-success);height:4px;border-radius:4px;width:{% widthratio active total 100 %}%"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px;"><span>In Store</span><span class="text-secondary">{{ in_store }}</span></div>
+          <div style="background:var(--color-surface-2);border-radius:4px;height:4px;"><div style="background:var(--color-info);height:4px;border-radius:4px;width:{% widthratio in_store total 100 %}%"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px;"><span>Under Repair</span><span class="text-secondary">{{ under_repair }}</span></div>
+          <div style="background:var(--color-surface-2);border-radius:4px;height:4px;"><div style="background:var(--color-warning);height:4px;border-radius:4px;width:{% widthratio under_repair total 100 %}%"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px;"><span>Condemned</span><span class="text-secondary">{{ condemned }}</span></div>
+          <div style="background:var(--color-surface-2);border-radius:4px;height:4px;"><div style="background:var(--color-danger);height:4px;border-radius:4px;width:{% widthratio condemned total 100 %}%"></div></div>
+        </div>
+      </div>
+      {% else %}
+      <p class="text-muted">No assets registered.</p>
+      {% endif %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <!-- Recent transactions -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Recent Transactions</div>
+      <a href="{% url 'operations:history' %}" class="btn btn-ghost btn-sm">View All</a>
+    </div>
+    {% if recent_transactions %}
+    <div class="table-wrapper" style="border:none;border-radius:0;">
+      <table class="data-table">
+        <thead><tr><th>Asset</th><th>Type</th><th>By</th><th>When</th></tr></thead>
+        <tbody>
+          {% for txn in recent_transactions %}
+          <tr>
+            <td><a href="{% url 'assets:detail' txn.asset.asset_id %}">{{ txn.asset.asset_id }}</a></td>
+            <td><span class="badge badge-{{ txn.get_type_badge }}">{{ txn.get_transaction_type_display }}</span></td>
+            <td class="muted">{{ txn.performed_by.get_full_name|default:txn.performed_by.username }}</td>
+            <td class="muted" style="font-size:12px;">{{ txn.created_at|timesince }} ago</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state"><div class="empty-state-title">No transactions yet</div></div>
+    {% endif %}
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+  const ctx = document.getElementById('deptChart');
+  if (!ctx) return;
+  const labels = [{% for d in dept_values %}"{{ d.name }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+  const data = [{% for d in dept_values %}{{ d.asset_value|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}];
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Asset Value (₦)',
+        data,
+        backgroundColor: 'rgba(79,110,247,0.6)',
+        borderColor: 'rgba(79,110,247,1)',
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8b92a9', font: { size: 11 } } },
+        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8b92a9', font: { size: 11 } } }
+      }
+    }
+  });
+})();
+</script>

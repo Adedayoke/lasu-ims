@@ -1,0 +1,38 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Auditor Dashboard</h1>
+    <p class="page-subtitle">System-wide asset overview and audit trail</p>
+  </div>
+  <a href="{% url 'reports:reconciliation' %}" class="btn btn-primary">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5z"/><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"/></svg>
+    Reconciliation Tool
+  </a>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card"><div class="stat-card-icon accent"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg></div><div class="stat-card-body"><div class="stat-card-value">{{ total_assets }}</div><div class="stat-card-label">Total Assets</div></div></div>
+  <div class="stat-card"><div class="stat-card-icon success"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div class="stat-card-body"><div class="stat-card-value">{{ active }}</div><div class="stat-card-label">Active</div></div></div>
+  <div class="stat-card"><div class="stat-card-icon warning"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877"/></svg></div><div class="stat-card-body"><div class="stat-card-value">{{ under_repair }}</div><div class="stat-card-label">Under Repair</div></div></div>
+  <div class="stat-card"><div class="stat-card-icon danger"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4.125l2.25 2.25m0 0l2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg></div><div class="stat-card-body"><div class="stat-card-value">{{ condemned|add:lost }}</div><div class="stat-card-label">Condemned / Lost</div></div></div>
+</div>
+
+<div class="card">
+  <div class="card-header"><div class="card-title">Recent Audit Log</div><a href="{% url 'reports:audit_log' %}" class="btn btn-ghost btn-sm">Full Log</a></div>
+  <div class="table-wrapper" style="border:none;border-radius:0;">
+    <table class="data-table">
+      <thead><tr><th>Time</th><th>User</th><th>Action</th><th>IP</th></tr></thead>
+      <tbody>
+        {% for entry in recent_audit %}
+        <tr>
+          <td class="muted" style="font-size:12px;white-space:nowrap;">{{ entry.timestamp|date:"d M Y H:i" }}</td>
+          <td>{{ entry.user.username|default:'system' }}</td>
+          <td style="max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ entry.action }}</td>
+          <td class="muted" style="font-size:12px;">{{ entry.ip_address|default:'—' }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="muted" style="text-align:center;padding:24px;">No audit entries.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

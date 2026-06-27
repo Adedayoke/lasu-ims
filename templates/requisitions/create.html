@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}New Requisition{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><a href="{% url 'requisitions:list' %}">Requisitions</a><span class="sep">/</span><span class="current">New</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Create Requisition</h1><p class="page-subtitle">Submit a request for assets from the store.</p></div>
+</div>
+
+<form method="post" id="req-form">
+  {% csrf_token %}
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-header"><div class="card-title">Requisition Details</div></div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Department <span class="required">*</span></label>
+          <select name="department" class="form-select" required>
+            <option value="">— Select Department —</option>
+            {% for dept in departments %}
+            <option value="{{ dept.pk }}" {% if user_dept == dept %}selected{% endif %}>{{ dept.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <select name="priority" class="form-select">
+            {% for val, label in priority_choices %}
+            <option value="{{ val }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group full-width">
+          <label class="form-label">Notes</label>
+          <textarea name="notes" class="form-control" rows="2" placeholder="Additional information…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-header">
+      <div class="card-title">Requested Items</div>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="addItem()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        Add Item
+      </button>
+    </div>
+    <div class="card-body">
+      <div id="items-container">
+        <div class="req-item" style="display:grid;grid-template-columns:2fr 1fr 2fr auto;gap:12px;margin-bottom:12px;align-items:start;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Asset Category <span class="required">*</span></label>
+            <select name="category[]" class="form-select" required>
+              <option value="">— Select —</option>
+              {% for cat in categories %}
+              <option value="{{ cat.pk }}">{{ cat.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Quantity <span class="required">*</span></label>
+            <input type="number" name="quantity[]" min="1" value="1" class="form-control" required>
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Purpose</label>
+            <input type="text" name="purpose[]" class="form-control" placeholder="What is it needed for?">
+          </div>
+          <div style="padding-top:20px;">
+            <button type="button" class="btn btn-ghost btn-sm text-danger" onclick="this.closest('.req-item').remove()">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" name="submit_action" value="submit" class="btn btn-primary">Submit for Approval</button>
+    <button type="submit" name="submit_action" value="save" class="btn btn-secondary">Save as Draft</button>
+    <a href="{% url 'requisitions:list' %}" class="btn btn-ghost">Cancel</a>
+  </div>
+</form>
+
+{% block extra_js %}
+<script>
+const categories = [{% for cat in categories %}{"id": {{ cat.pk }}, "name": "{{ cat.name }}"}{% if not forloop.last %},{% endif %}{% endfor %}];
+
+function addItem() {
+  const container = document.getElementById('items-container');
+  const opts = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  const div = document.createElement('div');
+  div.className = 'req-item';
+  div.style = 'display:grid;grid-template-columns:2fr 1fr 2fr auto;gap:12px;margin-bottom:12px;align-items:start;';
+  div.innerHTML = `
+    <div class="form-group" style="margin:0;">
+      <label class="form-label">Asset Category <span class="required">*</span></label>
+      <select name="category[]" class="form-select" required><option value="">— Select —</option>${opts}</select>
+    </div>
+    <div class="form-group" style="margin:0;">
+      <label class="form-label">Quantity</label>
+      <input type="number" name="quantity[]" min="1" value="1" class="form-control" required>
+    </div>
+    <div class="form-group" style="margin:0;">
+      <label class="form-label">Purpose</label>
+      <input type="text" name="purpose[]" class="form-control" placeholder="What is it needed for?">
+    </div>
+    <div style="padding-top:20px;">
+      <button type="button" class="btn btn-ghost btn-sm text-danger" onclick="this.closest('.req-item').remove()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+  `;
+  container.appendChild(div);
+}
+</script>
+{% endblock %}
+{% endblock %}

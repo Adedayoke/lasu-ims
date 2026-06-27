@@ -1,0 +1,73 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Department Dashboard</h1>
+    <p class="page-subtitle">{{ dept.name|default:'No department assigned' }} — Head of Department</p>
+  </div>
+  <a href="{% url 'requisitions:create' %}" class="btn btn-primary">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+    New Requisition
+  </a>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-card-icon accent"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg></div>
+    <div class="stat-card-body"><div class="stat-card-value">{{ total_assets }}</div><div class="stat-card-label">Dept Assets</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon success"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+    <div class="stat-card-body"><div class="stat-card-value">{{ active }}</div><div class="stat-card-label">Active</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon info"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5z"/></svg></div>
+    <div class="stat-card-body"><div class="stat-card-value">{{ in_store }}</div><div class="stat-card-label">In Store</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon warning"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877"/></svg></div>
+    <div class="stat-card-body"><div class="stat-card-value">{{ under_repair }}</div><div class="stat-card-label">Under Repair</div></div>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  <div class="card">
+    <div class="card-header"><div class="card-title">Department Assets</div><a href="{% url 'assets:list' %}" class="btn btn-ghost btn-sm">All Assets</a></div>
+    {% if dept_assets %}
+    <div class="table-wrapper" style="border:none;border-radius:0;">
+      <table class="data-table">
+        <thead><tr><th>Asset ID</th><th>Name</th><th>Status</th><th>Custodian</th></tr></thead>
+        <tbody>
+          {% for asset in dept_assets %}
+          <tr>
+            <td><a href="{% url 'assets:detail' asset.asset_id %}">{{ asset.asset_id }}</a></td>
+            <td>{{ asset.name }}</td>
+            <td><span class="badge badge-{{ asset.get_status_badge }}">{{ asset.get_status_display }}</span></td>
+            <td class="muted">{{ asset.custodian.get_full_name|default:'—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state"><div class="empty-state-title">No assets in department</div></div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">Recent Requisitions</div><a href="{% url 'requisitions:list' %}" class="btn btn-ghost btn-sm">All</a></div>
+    {% if dept_requisitions %}
+    <div class="card-body" style="padding-top:8px;">
+      {% for req in dept_requisitions %}
+      <div class="activity-item">
+        <div class="activity-dot {% if req.status == 'approved' %}success{% elif req.status == 'rejected' %}danger{% else %}accent{% endif %}"></div>
+        <div>
+          <div class="activity-text"><a href="{% url 'requisitions:detail' req.pk %}">{{ req.req_number }}</a></div>
+          <div class="activity-time"><span class="badge badge-{{ req.get_status_badge }}">{{ req.get_status_display }}</span> — {{ req.created_at|timesince }} ago</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state"><div class="empty-state-title">No requisitions yet</div><div class="empty-state-desc">Submit a requisition to request assets.</div><a href="{% url 'requisitions:create' %}" class="btn btn-primary btn-sm">Create Requisition</a></div>
+    {% endif %}
+  </div>
+</div>

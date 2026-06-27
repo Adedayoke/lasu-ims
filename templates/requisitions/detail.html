@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}{{ req.req_number }}{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><a href="{% url 'requisitions:list' %}">Requisitions</a><span class="sep">/</span><span class="current">{{ req.req_number }}</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ req.req_number }}</h1>
+    <p class="page-subtitle">{{ req.department.name }} — {{ req.created_at|date:"d M Y" }}</p>
+  </div>
+  <div class="page-actions">
+    {% if req.status == 'draft' and request.user == req.requested_by %}
+    <form method="post">{% csrf_token %}<input type="hidden" name="submit_req" value="1">
+      <button type="submit" class="btn btn-primary">Submit for Approval</button>
+    </form>
+    {% endif %}
+    {% if req.status == 'submitted' and request.user.role|in_list:'superadmin,store_officer' %}
+    <a href="{% url 'requisitions:approve' req.pk %}" class="btn btn-primary">Approve</a>
+    <a href="{% url 'requisitions:reject' req.pk %}" class="btn btn-danger">Reject</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><div class="card-title">Requisition Details</div></div>
+    <div class="card-body">
+      <div class="info-grid">
+        <div class="info-item"><div class="info-item-label">Status</div><div class="info-item-value"><span class="badge badge-{{ req.get_status_badge }}">{{ req.get_status_display }}</span></div></div>
+        <div class="info-item"><div class="info-item-label">Priority</div><div class="info-item-value"><span class="badge badge-{{ req.get_priority_badge }}">{{ req.get_priority_display }}</span></div></div>
+        <div class="info-item"><div class="info-item-label">Requested By</div><div class="info-item-value">{{ req.requested_by.get_full_name|default:req.requested_by.username }}</div></div>
+        <div class="info-item"><div class="info-item-label">Department</div><div class="info-item-value">{{ req.department.name }}</div></div>
+        <div class="info-item"><div class="info-item-label">Created</div><div class="info-item-value">{{ req.created_at|date:"d M Y H:i" }}</div></div>
+        {% if req.approved_by %}<div class="info-item"><div class="info-item-label">Approved By</div><div class="info-item-value">{{ req.approved_by.get_full_name }}</div></div>{% endif %}
+        {% if req.approved_at %}<div class="info-item"><div class="info-item-label">Approved At</div><div class="info-item-value">{{ req.approved_at|date:"d M Y H:i" }}</div></div>{% endif %}
+        {% if req.notes %}<div class="info-item" style="grid-column:1/-1;"><div class="info-item-label">Notes</div><div class="info-item-value">{{ req.notes }}</div></div>{% endif %}
+        {% if req.reject_reason %}<div class="info-item" style="grid-column:1/-1;"><div class="info-item-label">Rejection Reason</div><div class="info-item-value text-danger">{{ req.reject_reason }}</div></div>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Status timeline -->
+  <div class="card">
+    <div class="card-header"><div class="card-title">Status Timeline</div></div>
+    <div class="card-body">
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot {% if req.status == 'draft' or req.status|in_list:'submitted,approved,rejected,fulfilled' %}success{% endif %}"></div>
+          <div class="timeline-content"><div class="timeline-label">Draft</div><div class="timeline-meta">Requisition created</div></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot {% if req.status|in_list:'submitted,approved,rejected,fulfilled' %}{% if req.status == 'rejected' %}danger{% else %}success{% endif %}{% endif %}"></div>
+          <div class="timeline-content"><div class="timeline-label">Submitted</div><div class="timeline-meta">Pending review by store officer</div></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot {% if req.status == 'approved' or req.status == 'fulfilled' %}success{% elif req.status == 'rejected' %}danger{% endif %}"></div>
+          <div class="timeline-content"><div class="timeline-label">{% if req.status == 'rejected' %}Rejected{% else %}Approved{% endif %}</div><div class="timeline-meta">{% if req.approved_by %}By {{ req.approved_by.get_full_name }}{% endif %}</div></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot {% if req.status == 'fulfilled' %}success{% endif %}"></div>
+          <div class="timeline-content"><div class="timeline-label">Fulfilled</div><div class="timeline-meta">Assets issued</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Items -->
+<div class="card" style="margin-top:20px;">
+  <div class="card-header"><div class="card-title">Requested Items</div></div>
+  <div class="table-wrapper" style="border:none;border-radius:0;">
+    <table class="data-table">
+      <thead><tr><th>#</th><th>Category</th><th>Qty Requested</th><th>Qty Approved</th><th>Purpose</th></tr></thead>
+      <tbody>
+        {% for item in req.items.all %}
+        <tr>
+          <td class="muted">{{ forloop.counter }}</td>
+          <td>{{ item.asset_category.name }}</td>
+          <td>{{ item.quantity_requested }}</td>
+          <td>{% if item.quantity_approved is not None %}{{ item.quantity_approved }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+          <td class="muted">{{ item.purpose|default:'—' }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="muted" style="text-align:center;padding:24px;">No items.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

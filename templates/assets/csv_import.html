@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Import Assets{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><a href="{% url 'assets:list' %}">Assets</a><span class="sep">/</span><span class="current">Import CSV</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Bulk Import Assets</h1><p class="page-subtitle">Upload a CSV file to register multiple assets at once.</p></div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><div class="card-title">Upload CSV</div></div>
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label">CSV File <span class="required">*</span></label>
+          {{ form.csv_file }}
+          {% if form.csv_file.errors %}<span class="form-error">{{ form.csv_file.errors|join:', ' }}</span>{% endif %}
+          <span class="form-hint">Max file size 5MB. Download the template below.</span>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Import Assets</button>
+          <a href="{% url 'assets:list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+
+      {% if imported %}
+      <div class="alert alert-success" style="margin-top:16px;">Successfully imported {{ imported }} asset{{ imported|pluralize }}.</div>
+      {% endif %}
+
+      {% if errors %}
+      <div class="alert alert-warning" style="margin-top:16px;">
+        <div><strong>{{ errors|length }} row{{ errors|length|pluralize }} failed:</strong></div>
+        <ul style="margin-top:8px;padding-left:16px;">
+          {% for err in errors %}<li>{{ err }}</li>{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">CSV Format</div></div>
+    <div class="card-body">
+      <p class="text-secondary" style="margin-bottom:12px;font-size:13px;">Required columns:</p>
+      <div class="table-wrapper" style="border-radius:var(--radius-sm);">
+        <table class="data-table" style="font-size:12px;">
+          <thead><tr><th>Column</th><th>Required</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>name</code></td><td><span class="badge badge-danger">Yes</span></td><td>Dell Laptop</td></tr>
+            <tr><td><code>category</code></td><td><span class="badge badge-danger">Yes</span></td><td>Computers</td></tr>
+            <tr><td><code>department</code></td><td><span class="badge badge-danger">Yes</span></td><td>ICT Unit</td></tr>
+            <tr><td><code>status</code></td><td><span class="badge badge-neutral">No</span></td><td>in_store</td></tr>
+            <tr><td><code>condition</code></td><td><span class="badge badge-neutral">No</span></td><td>good</td></tr>
+            <tr><td><code>serial_number</code></td><td><span class="badge badge-neutral">No</span></td><td>SN123456</td></tr>
+            <tr><td><code>purchase_cost</code></td><td><span class="badge badge-neutral">No</span></td><td>150000</td></tr>
+            <tr><td><code>purchase_date</code></td><td><span class="badge badge-neutral">No</span></td><td>2025-01-15</td></tr>
+            <tr><td><code>supplier_name</code></td><td><span class="badge badge-neutral">No</span></td><td>ABC Supplies</td></tr>
+            <tr><td><code>location</code></td><td><span class="badge badge-neutral">No</span></td><td>Room 204</td></tr>
+            <tr><td><code>notes</code></td><td><span class="badge badge-neutral">No</span></td><td>Warranty expires 2027</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

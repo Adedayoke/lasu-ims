@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Reject {{ req.req_number }}{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><a href="{% url 'requisitions:list' %}">Requisitions</a><span class="sep">/</span><span class="current">Reject</span>{% endblock %}
+
+{% block content %}
+<div class="page-header"><h1 class="page-title" style="color:var(--color-danger);">Reject Requisition</h1></div>
+
+<div class="card" style="max-width:480px;border-color:rgba(239,68,68,0.3);">
+  <div class="card-body">
+    <div class="info-grid" style="margin-bottom:20px;">
+      <div class="info-item"><div class="info-item-label">Requisition</div><div class="info-item-value font-medium">{{ req.req_number }}</div></div>
+      <div class="info-item"><div class="info-item-label">Department</div><div class="info-item-value">{{ req.department.name }}</div></div>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group" style="margin-bottom:20px;">
+        <label class="form-label">Rejection Reason <span class="required">*</span></label>
+        <textarea name="reason" class="form-control" rows="4" placeholder="Explain why this requisition is being rejected…" required></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-danger">Confirm Rejection</button>
+        <a href="{% url 'requisitions:detail' req.pk %}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

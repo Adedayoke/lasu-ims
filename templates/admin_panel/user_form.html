@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} User{% endblock %}
+{% block breadcrumb %}<span class="sep">/</span><a href="{% url 'admin_panel:users' %}">Users</a><span class="sep">/</span><span class="current">{{ action }}</span>{% endblock %}
+
+{% block content %}
+<div class="page-header"><div><h1 class="page-title">{{ action }} User</h1></div></div>
+
+<div class="card" style="max-width:700px;">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-grid">
+        {% for field in form %}
+        <div class="form-group {% if field.html_name|in_list:'username,email,first_name,last_name' %}{% endif %}">
+          <label class="form-label">{{ field.label }}{% if field.field.required %} <span class="required">*</span>{% endif %}</label>
+          {{ field }}
+          {% if field.errors %}<span class="form-error">{{ field.errors|join:', ' }}</span>{% endif %}
+          {% if field.help_text %}<span class="form-hint">{{ field.help_text }}</span>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% if form.non_field_errors %}<div class="alert alert-danger" style="margin-top:16px;">{{ form.non_field_errors|join:', ' }}</div>{% endif %}
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ action }} User</button>
+        <a href="{% url 'admin_panel:users' %}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
